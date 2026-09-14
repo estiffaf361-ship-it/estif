@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>estif — Python & AI Developer</title>
+<style>
+  :root{
+    --bg-0: #050810;
+    --bg-1: #0A1120;
+    --bg-2: #0F1830;
+    --line: #1B2743;
+    --text-main: #F3F6FC;
+    --text-dim: #8593B4;
+    --blue: #4E8BFF;
+    --blue-dim: #274B8E;
+    --yellow: #FFD764;
+    --radius: 3px;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(78,139,255,0.14), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(255,215,100,0.06), transparent 55%),
+      var(--bg-0);
+    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, .brand, .nav-link, .btn, .pill{
+    font-family: 'Segoe UI Semibold', 'Arial Black', system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  p, li, .meta, .dim{
+    font-weight: 300;
+    color: var(--text-dim);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.6);
+  }
+
+  a{ color: inherit; text-decoration: none; }
+
+  /* ---------- Layout shell ---------- */
+  .wrap{
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  header{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(5,8,16,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .header-inner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 18px 0;
+  }
+
+  .brand{
+    font-size: 1.15rem;
+    color: var(--text-main);
+  }
+  .brand span{ color: var(--blue); }
+
+  nav ul{
+    display:flex;
+    gap: 26px;
+    list-style:none;
+  }
+
+  .nav-link{
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    padding: 6px 2px;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease;
+  }
+  .nav-link:hover{ color: var(--text-main); }
+  .nav-link.active{ color: var(--text-main); border-color: var(--blue); }
+
+  .nav-toggle{ display:none; }
+
+  section.view{
+    display:none;
+    padding: 64px 0 96px;
+    animation: fade .35s ease;
+  }
+  section.view.active{ display:block; }
+
+  @keyframes fade{
+    from{ opacity:0; transform: translateY(6px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  /* ---------- Home ---------- */
+  .hero-tag{
+    display:inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--yellow);
+    background: rgba(255,215,100,0.08);
+    border: 1px solid rgba(255,215,100,0.25);
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+  }
+
+  .hero h1{
+    font-size: clamp(2.3rem, 6vw, 3.6rem);
+    color: var(--text-main);
+    line-height: 1.08;
+    margin-bottom: 20px;
+  }
+  .hero h1 em{
+    font-style: normal;
+    color: var(--blue);
+  }
+
+  .hero p.lead{
+    max-width: 540px;
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    font-weight: 300;
+    margin-bottom: 34px;
+  }
+
+  .btn-row{ display:flex; gap:14px; flex-wrap:wrap; }
+
+  .btn{
+    display:inline-block;
+    font-size: 0.9rem;
+    padding: 13px 26px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn-primary{
+    background: var(--blue);
+    color: #050810;
+  }
+  .btn-ghost{
+    border-color: var(--line);
+    color: var(--text-main);
+  }
+
+  .stat-strip{
+    margin-top: 72px;
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .stat{
+    padding: 22px 0;
+    text-align:left;
+    border-right: 1px solid var(--line);
+  }
+  .stat:last-child{ border-right:none; }
+  .stat h3{ font-size: 1.7rem; color: var(--text-main); }
+  .stat .dim{ font-size: 0.85rem; }
+
+  /* ---------- Tech / profile ---------- */
+  .section-head{ margin-bottom: 36px; }
+  .section-head .kicker{
+    color: var(--blue);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .section-head h2{
+    font-size: clamp(1.7rem, 4vw, 2.2rem);
+    color: var(--text-main);
+  }
+
+  .profile-card{
+    display:flex;
+    gap: 28px;
+    align-items:flex-start;
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 30px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .avatar{
+    width: 76px; height:76px;
+    flex-shrink:0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--blue-dim));
+    display:flex; align-items:center; justify-content:center;
+    font-size: 1.6rem;
+    color: #050810;
+  }
+  .profile-info h3{ font-size: 1.3rem; color: var(--text-main); margin-bottom: 4px;}
+  .profile-info .dim{ font-size: 0.9rem; margin-bottom: 14px; }
+  .tag-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .pill{
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-main);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+
+  .skill-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .skill-card{
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+  .skill-card h4{ color: var(--text-main); font-size: 1rem; margin-bottom: 8px; }
+  .skill-card p{ font-size: 0.86rem; }
+
+  /* ---------- Journal ---------- */
+  .filter-row{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 34px;
+  }
+  .filter{
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .filter.active, .filter:hover{
+    color: #050810;
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+
+  .post-list{ display:flex; flex-direction:column; gap:0; }
+  .post{
+    display:flex;
+    justify-content:space-between;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .post-cat{
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--yellow);
+    margin-bottom: 6px;
+  }
+  .post h4{ color: var(--text-main); font-size: 1.05rem; margin-bottom: 6px; }
+  .post p{ font-size: 0.88rem; max-width: 480px; }
+  .post-meta{
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    text-align: right;
+  }
+  .read-more{
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--blue);
+    cursor: pointer;
+    margin-top: 8px;
+    display:inline-block;
+  }
+
+  /* ---------- About ---------- */
+  .about-body p{
+    max-width: 620px;
+    margin-bottom: 18px;
+    font-size: 1rem;
+  }
+  .about-body strong{ color: var(--text-main); font-weight:700; }
+
+  /* ---------- Contact ---------- */
+  .contact-grid{
+    display:grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 48px;
+  }
+  .contact-info h3{ color: var(--text-main); font-size:1.1rem; margin-bottom: 18px; }
+  .info-row{
+    display:flex;
+    flex-direction:column;
+    margin-bottom: 20px;
+  }
+  .info-row .label{
+    font-size: 0.76rem;
+    font-weight:700;
+    color: var(--yellow);
+    margin-bottom: 4px;
+  }
+  .info-row .val{ color: var(--text-main); font-weight:500; font-size:0.95rem; }
+
+  form{ display:flex; flex-direction:column; gap:16px; }
+  .field-row{ display:flex; gap:16px; }
+  .field{ flex:1; display:flex; flex-direction:column; gap:6px; }
+  label{ font-size: 0.78rem; font-weight:600; color: var(--text-dim); }
+  input, textarea{
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    color: var(--text-main);
+    font-size: 0.92rem;
+    font-family: inherit;
+  }
+  input:focus, textarea:focus{
+    outline: none;
+    border-color: var(--blue);
+  }
+  textarea{ resize: vertical; min-height: 110px; }
+
+  .submit-note{ font-size: 0.78rem; color: var(--text-dim); margin-top:4px; }
+
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 26px 0;
+    text-align:center;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  @media (max-width: 700px){
+    .header-inner{ flex-wrap:wrap; }
+    nav ul{
+      display:none;
+      width:100%;
+      flex-direction:column;
+      gap:0;
+      padding-top: 14px;
+    }
+    nav ul.open{ display:flex; }
+    .nav-link{ padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .nav-toggle{
+      display:block;
+      background:none; border:none;
+      color: var(--text-main);
+      font-size: 1.3rem;
+      cursor:pointer;
+    }
+    .stat-strip{ grid-template-columns: 1fr; }
+    .stat{ border-right:none; border-bottom: 1px solid var(--line); }
+    .stat:last-child{ border-bottom:none; }
+    .skill-grid{ grid-template-columns: 1fr; }
+    .profile-card{ flex-direction:column; }
+    .contact-grid{ grid-template-columns: 1fr; }
+    .field-row{ flex-direction:column; }
+    .post{ flex-direction:column; }
+    .post-meta{ text-align:left; }
+  }
+
+  :focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap header-inner">
+    <div class="brand">estif<span>.dev</span></div>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
+    <nav>
+      <ul id="navList">
+        <li class="nav-link active" data-target="home">Home</li>
+        <li class="nav-link" data-target="tech">Tech</li>
+        <li class="nav-link" data-target="journal">Journal</li>
+        <li class="nav-link" data-target="about">About</li>
+        <li class="nav-link" data-target="contact">Contact</li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HOME -->
+  <section class="view active" id="home">
+    <span class="hero-tag">Tech · Python Programming</span>
+    <div class="hero">
+      <h1>Welcome to <em>Tech Python</em><br>Programming.</h1>
+      <p class="lead">I'm estif — a self-taught developer building things with Python and exploring how AI is changing the way software gets made. This is where I share what I'm building and what I'm learning.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" data-target="journal">Read the journal</a>
+        <a class="btn btn-ghost" data-target="contact">Get in touch</a>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat">
+        <h3>16</h3>
+        <div class="dim">Years old, self-taught</div>
+      </div>
+      <div class="stat">
+        <h3>Python</h3>
+        <div class="dim">Primary language</div>
+      </div>
+      <div class="stat">
+        <h3>AI + Web</h3>
+        <div class="dim">Current focus areas</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH -->
+  <section class="view" id="tech">
+    <div class="section-head">
+      <div class="kicker">Tech</div>
+      <h2>The right way into Python.</h2>
+    </div>
+
+    <div class="profile-card">
+      <div class="avatar">e</div>
+      <div class="profile-info">
+        <h3>estif</h3>
+        <div class="dim">Age 16 · Python developer</div>
+        <div class="tag-row">
+          <span class="pill">Programming</span>
+          <span class="pill">AI &amp; Future Tech</span>
+          <span class="pill">Web Development</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-grid">
+      <div class="skill-card">
+        <h4>Programming</h4>
+        <p>Writing clean, working Python — from scripts to small applications.</p>
+      </div>
+      <div class="skill-card">
+        <h4>AI &amp; Future Tech</h4>
+        <p>Learning how AI models work and where the field is heading next.</p>
+      </div>
+      <div class="skill-card">
+        <h4>Web Development</h4>
+        <p>Building websites and interfaces, from layout to functionality.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section class="view" id="journal">
+    <div class="section-head">
+      <div class="kicker">Journal</div>
+      <h2>Posts &amp; topics.</h2>
+    </div>
+
+    <div class="filter-row">
+      <button class="filter active" data-cat="All">All</button>
+      <button class="filter" data-cat="Programming">Programming</button>
+      <button class="filter" data-cat="AI and future">AI and future</button>
+      <button class="filter" data-cat="Web design">Web design</button>
+      <button class="filter" data-cat="Maintenance">Maintenance</button>
+      <button class="filter" data-cat="Video editing">Video editing</button>
+      <button class="filter" data-cat="Cybersecurity">Cybersecurity</button>
+      <button class="filter" data-cat="Mobile">Mobile</button>
+      <button class="filter" data-cat="Cloud">Cloud</button>
+    </div>
+
+    <div class="post-list" id="postList"></div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="view" id="about">
+    <div class="section-head">
+      <div class="kicker">About</div>
+      <h2>A little about me.</h2>
+    </div>
+    <div class="about-body">
+      <p>I'm <strong>estif</strong>, a Python developer with a growing interest in AI and where technology is headed. I taught myself to code because I wanted to understand how the things I use every day actually work — and that curiosity turned into a habit of building.</p>
+      <p>Right now I split my time between learning Python fundamentals more deeply, experimenting with AI tools, and putting together small web projects. This site is both a portfolio and a journal for that process.</p>
+      <p>I'm always open to feedback, collaboration, or just talking tech — reach out through the contact page.</p>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="view" id="contact">
+    <div class="section-head">
+      <div class="kicker">Contact</div>
+      <h2>Let's talk.</h2>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Reach me directly</h3>
+        <div class="info-row">
+          <span class="label">Email</span>
+          <span class="val">estiffaf361@gmail.com</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Location</span>
+          <span class="val">Addis Ababa, Ethiopia</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Response time</span>
+          <span class="val">Within 24 hours</span>
+        </div>
+      </div>
+
+      <form id="contactForm">
+        <div class="field-row">
+          <div class="field">
+            <label for="fullname">Full name</label>
+            <input type="text" id="fullname" name="fullname" placeholder="Your name" required>
+          </div>
+          <div class="field">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="subject">Subject</label>
+          <input type="text" id="subject" name="subject" placeholder="What's this about?" required>
+        </div>
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Write your message..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Send message</button>
+        <div class="submit-note" id="formNote"></div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">© <span id="year"></span> estif — Built with Python-first thinking.</div>
+</footer>
+
+<script>
+  // ---- nav + view switching ----
+  const links = document.querySelectorAll('[data-target]');
+  const views = document.querySelectorAll('.view');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  function showView(id){
+    views.forEach(v => v.classList.toggle('active', v.id === id));
+    navLinks.forEach(n => n.classList.toggle('active', n.dataset.target === id));
+    document.getElementById('navList').classList.remove('open');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  links.forEach(el => {
+    el.addEventListener('click', () => showView(el.dataset.target));
+  });
+
+  document.getElementById('navToggle').addEventListener('click', () => {
+    document.getElementById('navList').classList.toggle('open');
+  });
+
+  // ---- journal data ----
+  const posts = [
+    { cat:"Programming", title:"Writing my first real Python project", excerpt:"What I learned moving from tutorials to an actual working script.", date:"Sep 2026" },
+    { cat:"AI and future", title:"How I'm learning AI as a beginner", excerpt:"The resources and small experiments that made AI concepts click for me.", date:"Sep 2026" },
+    { cat:"Web design", title:"Designing a site that doesn't look templated", excerpt:"Notes on color, type, and layout choices for this portfolio.", date:"Aug 2026" },
+    { cat:"Maintenance", title:"Keeping a personal project alive", excerpt:"Simple habits for not abandoning side projects after week two.", date:"Aug 2026" },
+    { cat:"Video editing", title:"Editing my first project demo video", excerpt:"What tools I used to record and cut a short walkthrough.", date:"Jul 2026" },
+    { cat:"Cybersecurity", title:"Basic security habits every beginner should know", excerpt:"Simple practices for protecting accounts and code as a new developer.", date:"Jul 2026" },
+    { cat:"Mobile", title:"Thinking about a mobile version of this site", excerpt:"Early notes on going from responsive web to an actual app.", date:"Jun 2026" },
+    { cat:"Cloud", title:"My first deployment to the cloud", excerpt:"Getting a small Python app running somewhere other than my laptop.", date:"Jun 2026" },
+  ];
+
+  const postList = document.getElementById('postList');
+
+  function renderPosts(filter){
+    postList.innerHTML = '';
+    const filtered = filter === 'All' ? posts : posts.filter(p => p.cat === filter);
+    filtered.forEach(p => {
+      const el = document.createElement('div');
+      el.className = 'post';
+      el.innerHTML = `
+        <div>
+          <div class="post-cat">${p.cat}</div>
+          <h4>${p.title}</h4>
+          <p>${p.excerpt}</p>
+          <span class="read-more">Read more →</span>
+        </div>
+        <div class="post-meta">${p.date}</div>
+      `;
+      postList.appendChild(el);
+    });
+  }
+
+  document.querySelectorAll('.filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderPosts(btn.dataset.cat);
+    });
+  });
+
+  renderPosts('All');
+
+  // ---- contact form ----
+  document.getElementById('contactForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    document.getElementById('formNote').textContent = "Thanks — your message has been noted. I'll reply within 24 hours.";
+    this.reset();
+  });
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
