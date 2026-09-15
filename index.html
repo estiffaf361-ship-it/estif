@@ -347,6 +347,103 @@
     color: var(--text-dim);
   }
 
+  /* ---------- Post detail modal ---------- */
+  .modal-overlay{
+    display:none;
+    position: fixed;
+    inset: 0;
+    background: rgba(2,4,10,0.78);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    padding: 40px 20px;
+    overflow-y: auto;
+  }
+  .modal-overlay.open{ display:block; }
+
+  .modal-card{
+    max-width: 720px;
+    margin: 0 auto;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        var(--bg-1) 0px, var(--bg-1) 74px,
+        var(--line) 74px, var(--line) 75px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0px, transparent 74px,
+        var(--line) 74px, var(--line) 75px
+      ),
+      var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 36px;
+    animation: fade .25s ease;
+  }
+
+  .modal-close{
+    display:flex;
+    justify-content:flex-end;
+  }
+  .modal-close button{
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    color: var(--text-main);
+    width: 32px; height:32px;
+    border-radius: 50%;
+    cursor:pointer;
+    font-size: 1rem;
+  }
+
+  .modal-cat{
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--yellow);
+    margin: 8px 0 6px;
+  }
+  .modal-card h3{
+    font-size: 1.5rem;
+    color: var(--text-main);
+    margin-bottom: 6px;
+  }
+  .modal-card .dim{ font-size: 0.82rem; margin-bottom: 20px; }
+  .modal-body p{
+    color: var(--text-main);
+    font-weight: 400;
+    font-size: 0.96rem;
+    margin-bottom: 14px;
+    max-width: 100%;
+  }
+
+  .comment-section{
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .comment-section h4{ color: var(--text-main); font-size: 1rem; margin-bottom: 16px; }
+
+  .comment-form{ display:flex; flex-direction:column; gap:10px; margin-bottom: 22px; }
+  .comment-form input, .comment-form textarea{
+    background: var(--bg-2);
+  }
+  .comment-form textarea{ min-height: 70px; }
+  .comment-form button{ align-self:flex-start; }
+
+  .comment-list{ display:flex; flex-direction:column; gap:14px; }
+  .comment{
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .comment .c-name{ color: var(--text-main); font-size: 0.86rem; font-weight:700; margin-bottom:4px; }
+  .comment .c-text{ color: var(--text-dim); font-size: 0.88rem; }
+  .comment .c-empty{ color: var(--text-dim); font-size: 0.86rem; font-style: italic; }
+
+  @media (max-width: 700px){
+    .modal-card{ padding: 24px; }
+  }
+
   @media (max-width: 700px){
     .header-inner{ flex-wrap:wrap; }
     nav ul{
@@ -556,6 +653,26 @@
   <div class="wrap">© <span id="year"></span> estif — Built with Python-first thinking.</div>
 </footer>
 
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card">
+    <div class="modal-close"><button id="modalCloseBtn" aria-label="Close">✕</button></div>
+    <div class="modal-cat" id="modalCat"></div>
+    <h3 id="modalTitle"></h3>
+    <div class="dim" id="modalDate"></div>
+    <div class="modal-body" id="modalBody"></div>
+
+    <div class="comment-section">
+      <h4>Comments</h4>
+      <form class="comment-form" id="commentForm">
+        <input type="text" id="commentName" placeholder="Your name" required>
+        <textarea id="commentText" placeholder="Add a comment..." required></textarea>
+        <button type="submit" class="btn btn-primary">Post comment</button>
+      </form>
+      <div class="comment-list" id="commentList"></div>
+    </div>
+  </div>
+</div>
+
 <script>
   // ---- nav + view switching ----
   const links = document.querySelectorAll('[data-target]');
@@ -579,15 +696,30 @@
 
   // ---- journal data ----
   const posts = [
-    { cat:"Programming", title:"Writing my first real Python project", excerpt:"What I learned moving from tutorials to an actual working script.", date:"Sep 2026" },
-    { cat:"AI and future", title:"How I'm learning AI as a beginner", excerpt:"The resources and small experiments that made AI concepts click for me.", date:"Sep 2026" },
-    { cat:"Web design", title:"Designing a site that doesn't look templated", excerpt:"Notes on color, type, and layout choices for this portfolio.", date:"Aug 2026" },
-    { cat:"Maintenance", title:"Keeping a personal project alive", excerpt:"Simple habits for not abandoning side projects after week two.", date:"Aug 2026" },
-    { cat:"Video editing", title:"Editing my first project demo video", excerpt:"What tools I used to record and cut a short walkthrough.", date:"Jul 2026" },
-    { cat:"Cybersecurity", title:"Basic security habits every beginner should know", excerpt:"Simple practices for protecting accounts and code as a new developer.", date:"Jul 2026" },
-    { cat:"Mobile", title:"Thinking about a mobile version of this site", excerpt:"Early notes on going from responsive web to an actual app.", date:"Jun 2026" },
-    { cat:"Cloud", title:"My first deployment to the cloud", excerpt:"Getting a small Python app running somewhere other than my laptop.", date:"Jun 2026" },
+    { id:0, cat:"Programming", title:"Writing my first real Python project", excerpt:"What I learned moving from tutorials to an actual working script.", date:"Sep 2026",
+      body:"Tutorials are easy because someone else has already made the decisions. My first real project was different — I had to decide the structure, name things sensibly, and actually debug my own mistakes. I built a small command-line tool and learned more from the three bugs I got stuck on than from any course." },
+    { id:1, cat:"AI and future", title:"How I'm learning AI as a beginner", excerpt:"The resources and small experiments that made AI concepts click for me.", date:"Sep 2026",
+      body:"I started by learning what a model actually does before touching any code — inputs, outputs, and training in plain terms. After that, small hands-on experiments made the ideas click much faster than reading theory alone." },
+    { id:2, cat:"Web design", title:"Designing a site that doesn't look templated", excerpt:"Notes on color, type, and layout choices for this portfolio.", date:"Aug 2026",
+      body:"It's easy to reach for the same rounded cards and gradient backgrounds everyone else uses. For this site I picked a palette and layout that fit a Python and AI portfolio specifically, instead of a generic template." },
+    { id:3, cat:"Maintenance", title:"Keeping a personal project alive", excerpt:"Simple habits for not abandoning side projects after week two.", date:"Aug 2026",
+      body:"Most side projects die in week two. What's worked for me is keeping a short running list of small, doable next steps, so I never open the project without knowing exactly what to do next." },
+    { id:4, cat:"Video editing", title:"Editing my first project demo video", excerpt:"What tools I used to record and cut a short walkthrough.", date:"Jul 2026",
+      body:"Recording the walkthrough was the easy part. Editing it down to something worth watching — cutting dead air, keeping it under two minutes — took far longer than I expected." },
+    { id:5, cat:"Cybersecurity", title:"Basic security habits every beginner should know", excerpt:"Simple practices for protecting accounts and code as a new developer.", date:"Jul 2026",
+      body:"Strong, unique passwords, two-factor authentication, and never committing secrets or API keys to a public repository. Simple habits, but easy to skip when you're focused on just getting something working." },
+    { id:6, cat:"Mobile", title:"Thinking about a mobile version of this site", excerpt:"Early notes on going from responsive web to an actual app.", date:"Jun 2026",
+      body:"A responsive site works on a phone, but it isn't the same as a mobile app. I'm weighing whether to wrap this site or start a separate app project once I've learned more mobile-specific tools." },
+    { id:7, cat:"Cloud", title:"My first deployment to the cloud", excerpt:"Getting a small Python app running somewhere other than my laptop.", date:"Jun 2026",
+      body:"Getting an app to run on my own machine and getting it to run reliably on a server are two very different problems. My first deployment taught me that the environment matters as much as the code." },
+    { id:8, cat:"Programming", title:"Refactoring old code without breaking it", excerpt:"How I went back to an early project and cleaned it up safely.", date:"Sep 2026",
+      body:"I opened a project I wrote a few months ago and barely recognized my own code. Refactoring it taught me to change one small piece at a time and re-test after each step, instead of rewriting everything at once and hoping it still works." },
+    { id:9, cat:"AI and future", title:"What I got wrong about AI at first", excerpt:"A few early assumptions about AI that changed once I actually started building.", date:"Sep 2026",
+      body:"When I first started reading about AI, I assumed it was mostly about writing clever prompts. Building small things myself showed me how much of it is really about data, structure, and testing — the prompt is just the last step, not the whole process." },
   ];
+
+  // in-memory comment store, keyed by post id
+  const commentsByPost = {};
 
   const postList = document.getElementById('postList');
 
@@ -602,11 +734,15 @@
           <div class="post-cat">${p.cat}</div>
           <h4>${p.title}</h4>
           <p>${p.excerpt}</p>
-          <span class="read-more">Read more →</span>
+          <span class="read-more" data-id="${p.id}">Read more →</span>
         </div>
         <div class="post-meta">${p.date}</div>
       `;
       postList.appendChild(el);
+    });
+
+    document.querySelectorAll('.read-more').forEach(btn => {
+      btn.addEventListener('click', () => openPost(Number(btn.dataset.id)));
     });
   }
 
@@ -619,6 +755,68 @@
   });
 
   renderPosts('All');
+
+  // ---- post detail modal ----
+  const modalOverlay = document.getElementById('modalOverlay');
+  let activePostId = null;
+
+  function openPost(id){
+    const post = posts.find(p => p.id === id);
+    if(!post) return;
+    activePostId = id;
+    document.getElementById('modalCat').textContent = post.cat;
+    document.getElementById('modalTitle').textContent = post.title;
+    document.getElementById('modalDate').textContent = post.date;
+    document.getElementById('modalBody').innerHTML = `<p>${post.body}</p>`;
+    renderComments(id);
+    modalOverlay.classList.add('open');
+  }
+
+  function closePost(){
+    modalOverlay.classList.remove('open');
+    activePostId = null;
+  }
+
+  document.getElementById('modalCloseBtn').addEventListener('click', closePost);
+  modalOverlay.addEventListener('click', (e) => {
+    if(e.target === modalOverlay) closePost();
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') closePost();
+  });
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function renderComments(id){
+    const list = document.getElementById('commentList');
+    const comments = commentsByPost[id] || [];
+    if(comments.length === 0){
+      list.innerHTML = `<div class="c-empty">No comments yet — be the first to say something.</div>`;
+      return;
+    }
+    list.innerHTML = comments.map(c => `
+      <div class="comment">
+        <div class="c-name">${escapeHtml(c.name)}</div>
+        <div class="c-text">${escapeHtml(c.text)}</div>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('commentForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    if(activePostId === null) return;
+    const name = document.getElementById('commentName').value.trim();
+    const text = document.getElementById('commentText').value.trim();
+    if(!name || !text) return;
+    if(!commentsByPost[activePostId]) commentsByPost[activePostId] = [];
+    commentsByPost[activePostId].push({ name, text });
+    renderComments(activePostId);
+    this.reset();
+  });
 
   // ---- contact form ----
   document.getElementById('contactForm').addEventListener('submit', function(e){
